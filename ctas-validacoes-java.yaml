@@ -1,0 +1,159 @@
+swagger: '2.0'
+info:
+  title: Validações - CTAS
+  description: API de Contas para validações
+  version: 1.0.0
+  termsOfService: 'https://www.google.com'
+  contact:
+    email: email@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 'localhost:8642'
+basePath: /ctas-validacoes-java/v1
+schemes:
+  - http
+  
+securityDefinitions:
+  JWT:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  '/accounts/{accountNumber}/status':
+    get:
+      tags:
+        - Contas
+      summary: Consultar status da conta
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: accountNumber
+        type: string
+        required: true
+        description: Número da conta
+      responses:
+        '200':
+          description: OK
+          schema: 
+            $ref: '#/definitions/AccountPresenterData'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+definitions:
+
+# -----------------------------------------------------------------
+# Requests
+
+  StandardRequest: #Alterar nome e todo o request
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo da requisição" 
+        type: "string"
+        example: "valor do campo"
+              
+              
+# -----------------------------------------------------------------
+# Responses
+  AccountPresenter:
+    type: object
+    properties:
+      id:
+        type: number
+        example: 1281324
+      accountNumber:
+        type: string
+        example: '34128712'
+      statusDescription:
+        type: string
+        example: 'Ativo'
+      statusId:
+        type: integer
+        format: int64
+        example: 7
+    title: AccountPresenter
+  AccountPresenterData:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/AccountPresenter'
+    title: AccountPresenterData
+# -----------------------------------------------------------------
+# Response - Error
+
+  Error:
+    type: "object"
+    properties:
+      timestamp:
+        description: "O timestamp em que o erro ocorreu."
+        type: "string"
+        format: "date-time"
+      status:
+        description: "O status HTTP. Deve ser o mesmo status retornado como resposta da requisição."
+        type: "number"
+      error:
+        description: "A descrição do status HTTP."
+        type: "string"
+        example: "Bad Request"
+      method:
+        type: "string"
+      path:
+        type: "string"
+      transactionId:
+        description: "Indentificador único do erro. Pode ser utilizado para rastrear a propagação do erro."
+        type: "string"
+        example: "e9ef6d22-7f46-426b-8121-417e1714ad6d"
+      errors:
+        type: array
+        items:
+          type: "object"
+          properties:
+            informationCode:
+              description: "Código do erro definido pelo projeto"
+              example: "error.business.request.invalid"
+            message:
+              description: "Mensagem com descrição do erro"
+              example: "O atributo accountId deve ser preenchido."
+    required:
+      - timestamp
+      - status
+      - error
+      - method
+      - path
+      - transactionId
+      - errors
+  ErrorDetails: #Exemplo de erro
+    description: "Informação detalhada dos erros ocorridos."
+    type: "object"
+    properties:
+      informationCode:
+        description: "Código do erro."
+        type: "string"
+        example: "error.business.request.invalid"
+      message:
+        description: "Descrição do erro."
+        type: "string"
+        example: "O atributo {1} deve ser preenchido."
+      args:
+        description: "Dados complementares do erro."
+        type: array
+        items: {}
+        example: [ "accountId" ]
+      nested:
+        $ref: '#/definitions/ErrorDetails'
+    required:
+      - uniqueId
+      - informationCode
+      - message

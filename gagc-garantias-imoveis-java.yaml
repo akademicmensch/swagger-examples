@@ -1,0 +1,420 @@
+swagger: '2.0'
+info:
+  title: Garantia Imóveis - GAGC
+  description: API para Garantia de imóveis
+  version: 1.0.0
+  termsOfService: 'https://www.google.com.br'
+  contact:
+    email: email@gmail.com.br
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 'localhost:8589'
+basePath: /gagc-garantias-imoveis-java/v1
+schemes:
+  - http
+  
+securityDefinitions:
+  JWT:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  '/properties/warranties':
+    get:
+      tags:
+        - Guarda-chuva
+      summary: Consultar as garantias de imóvel e os bens
+      operationId: getWarrantiesAndImobileGoodsUsingGET
+      parameters:
+        - name: customerId
+          in: query
+          description: customerId
+          required: true
+          type: string
+        - name: idSubproduct
+          in: query
+          description: idSubproduct
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema: 
+            $ref: '#/definitions/ReverseResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+  '/agreements/{id}/warranties':
+    put:
+      tags:
+        - Guarda-chuva
+      summary: Alterar a garantia do imóvel
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do convênio
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/StandardRequest" #Alterar para o nome do request deste recurso
+      responses:
+        '204':
+          description: No content
+          schema: 
+            $ref: '#/definitions/StandardResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+  '/agreements/{id}/loans':
+    post:
+      tags:
+        - Guarda-chuva
+      summary: Vincular garantia à um empréstimo
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do convênio
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/StandardRequest" #Alterar para o nome do request deste recurso
+      responses:
+        '201':
+          description: CREATED
+          schema: 
+            $ref: '#/definitions/StandardResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+  '/loans/{id}/warranties':
+    post:
+      tags:
+        - Guarda-chuva
+      summary: Contabilização da Garantia de Imóvel Vinculada no empréstimo
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do empréstimo
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/StandardRequest" #Alterar para o nome do request deste recurso
+      responses:
+        '200':
+          description: CREATED
+          schema: 
+            $ref: '#/definitions/StandardResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+  '/products':
+    get:
+      tags:
+        - Garantia Imóvel
+      summary: Obtencao de produtos de garantia
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      responses:
+        '200':
+          description: OK
+          schema: 
+            $ref: '#/definitions/DataResponseProduct'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      security:
+        - JWT: []
+  '/subproducts/{id}':
+    get:
+      tags:
+        - Garantia Imóvel
+      summary: Obtencao de subprodutos de garantia por id de garantia
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do produto
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      responses:
+        '200':
+          description: OK
+          schema: 
+            $ref: '#/definitions/DataResponseSubproduct'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      security:
+        - JWT: []
+definitions:
+
+  DataResponseProduct:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Product'
+    title: DataResponseProduct
+  DataResponseSubproduct:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Subproduct'
+    title: DataResponseSubproduct
+  Product:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+        example: 2341
+      longDescription:
+        type: string
+        example: 'GARANTIA FIDUCIARIA DE IMOVEIS'
+    title: Product
+  Subproduct:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+        example: 212341
+      longDescription:
+        type: string
+        example: 'IMOVEIS AGRO TECH'
+    title: Subproduct
+
+  Warranty:
+    type: object
+    properties:
+      availableValue:
+        type: number
+      id:
+        type: integer
+        format: int64
+      operationId:
+        type: string
+      warrantyGoods:
+        type: array
+        items:
+          $ref: '#/definitions/WarrantyGoods'
+    title: Warranty
+  WarrantyGoods:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      relationWarrantyGoods:
+        type: array
+        items:
+          $ref: '#/definitions/RelationWarrantyGoods'
+    title: WarrantyGoods
+  RelationWarrantyGoods:
+    type: object
+    title: RelationWarrantyGoods
+  ReverseResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Warranty'
+    title: ReverseResponse
+
+# -----------------------------------------------------------------
+# Requests
+
+  StandardRequest: #Alterar nome e todo o request
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo da requisição" 
+        type: "string"
+        example: "valor do campo"
+              
+              
+# -----------------------------------------------------------------
+# Responses
+  
+  StandardResponse: #Alterar para o nome da response
+    type: "object"
+    properties:
+      data:
+        $ref: '#/definitions/ResponseData' #Alterar para o nome da response
+      metadata:
+        $ref: '#/definitions/ResponseMetadata' #Alterar para o nome da response
+
+  ResponseData: #Alterar nome e toda a response
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo de resposta"
+        type: "string"
+        example: "valor do campo"
+        
+  ResponseMetadata: #Somente utilizar caso haja metadados, como paginação, analytics, etc
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo de resposta"
+        type: "string"
+        example: "valor do campo"
+# -----------------------------------------------------------------
+# Response - Error
+
+  Error:
+    type: "object"
+    properties:
+      timestamp:
+        description: "O timestamp em que o erro ocorreu."
+        type: "string"
+        format: "date-time"
+      status:
+        description: "O status HTTP. Deve ser o mesmo status retornado como resposta da requisição."
+        type: "number"
+      error:
+        description: "A descrição do status HTTP."
+        type: "string"
+        example: "Bad Request"
+      method:
+        type: "string"
+      path:
+        type: "string"
+      transactionId:
+        description: "Indentificador único do erro. Pode ser utilizado para rastrear a propagação do erro."
+        type: "string"
+        example: "e9ef6d22-7f46-426b-8121-417e1714ad6d"
+      errors:
+        type: array
+        items:
+          type: "object"
+          properties:
+            informationCode:
+              description: "Código do erro definido pelo projeto"
+              example: "error.business.request.invalid"
+            message:
+              description: "Mensagem com descrição do erro"
+              example: "O atributo accountId deve ser preenchido."
+    required:
+      - timestamp
+      - status
+      - error
+      - method
+      - path
+      - transactionId
+      - errors
+  ErrorDetails: #Exemplo de erro
+    description: "Informação detalhada dos erros ocorridos."
+    type: "object"
+    properties:
+      informationCode:
+        description: "Código do erro."
+        type: "string"
+        example: "error.business.request.invalid"
+      message:
+        description: "Descrição do erro."
+        type: "string"
+        example: "O atributo {1} deve ser preenchido."
+      args:
+        description: "Dados complementares do erro."
+        type: array
+        items: {}
+        example: [ "accountId" ]
+      nested:
+        $ref: '#/definitions/ErrorDetails'
+    required:
+      - uniqueId
+      - informationCode
+      - message

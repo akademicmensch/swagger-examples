@@ -1,0 +1,238 @@
+swagger: '2.0'
+info:
+  title: Convênio Guarda-chuva - GLCR
+  description: API para Convênio Guarda-Chuva
+  version: 1.0.0
+  termsOfService: 'https://www.google.com.br'
+  contact:
+    email: email@gmail.com.br
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 'localhost:8588'
+basePath: /glcr-guarda-chuva-java/v1
+schemes:
+  - http
+  
+securityDefinitions:
+  JWT:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  '/customers/{id}/umbrellas':
+    post:
+      tags:
+        - Guarda-chuva
+      summary: Incluir valor no Guarda-chuva
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do cliente
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/StandardRequest" #Alterar para o nome do request deste recurso
+      responses:
+        '201':
+          description: CREATED
+          schema: 
+            $ref: '#/definitions/StandardResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+    put:
+      tags:
+        - Guarda-chuva
+      summary: Alterar valor e limite no Guarda-chuva
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do cliente
+      - in: header
+        name: x-transaction-id
+        type: string
+        required: true
+        description: UUID da transação
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/StandardRequest" #Alterar para o nome do request deste recurso
+      responses:
+        '204':
+          description: No content
+          schema: 
+            $ref: '#/definitions/StandardResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+    get:
+      tags:
+        - Guarda-chuva
+      summary: Consultar valor e limite no Guarda-chuva
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: ID do cliente
+      responses:
+        '200':
+          description: OK
+          schema: 
+            $ref: '#/definitions/StandardResponse' #Alterar para o nome do response deste recurso
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - JWT: []
+definitions:
+
+# -----------------------------------------------------------------
+# Requests
+
+  StandardRequest: #Alterar nome e todo o request
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo da requisição" 
+        type: "string"
+        example: "valor do campo"
+              
+              
+# -----------------------------------------------------------------
+# Responses
+  
+  StandardResponse: #Alterar para o nome da response
+    type: "object"
+    properties:
+      data:
+        $ref: '#/definitions/ResponseData' #Alterar para o nome da response
+      metadata:
+        $ref: '#/definitions/ResponseMetadata' #Alterar para o nome da response
+
+  ResponseData: #Alterar nome e toda a response
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo de resposta"
+        type: "string"
+        example: "valor do campo"
+        
+  ResponseMetadata: #Somente utilizar caso haja metadados, como paginação, analytics, etc
+    type: "object"
+    properties:
+      campo1:
+        description: "Campo de resposta"
+        type: "string"
+        example: "valor do campo"
+# -----------------------------------------------------------------
+# Response - Error
+
+  Error:
+    type: "object"
+    properties:
+      timestamp:
+        description: "O timestamp em que o erro ocorreu."
+        type: "string"
+        format: "date-time"
+      status:
+        description: "O status HTTP. Deve ser o mesmo status retornado como resposta da requisição."
+        type: "number"
+      error:
+        description: "A descrição do status HTTP."
+        type: "string"
+        example: "Bad Request"
+      method:
+        type: "string"
+      path:
+        type: "string"
+      transactionId:
+        description: "Indentificador único do erro. Pode ser utilizado para rastrear a propagação do erro."
+        type: "string"
+        example: "e9ef6d22-7f46-426b-8121-417e1714ad6d"
+      errors:
+        type: array
+        items:
+          type: "object"
+          properties:
+            informationCode:
+              description: "Código do erro definido pelo projeto"
+              example: "error.business.request.invalid"
+            message:
+              description: "Mensagem com descrição do erro"
+              example: "O atributo accountId deve ser preenchido."
+    required:
+      - timestamp
+      - status
+      - error
+      - method
+      - path
+      - transactionId
+      - errors
+  ErrorDetails: #Exemplo de erro
+    description: "Informação detalhada dos erros ocorridos."
+    type: "object"
+    properties:
+      informationCode:
+        description: "Código do erro."
+        type: "string"
+        example: "error.business.request.invalid"
+      message:
+        description: "Descrição do erro."
+        type: "string"
+        example: "O atributo {1} deve ser preenchido."
+      args:
+        description: "Dados complementares do erro."
+        type: array
+        items: {}
+        example: [ "accountId" ]
+      nested:
+        $ref: '#/definitions/ErrorDetails'
+    required:
+      - uniqueId
+      - informationCode
+      - message
